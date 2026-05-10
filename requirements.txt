@@ -1,0 +1,9 @@
+flask
+sentence-transformers
+nltk
+pdfplumber
+python-docx
+pandas
+numpy
+matplotlib
+scikit-learn

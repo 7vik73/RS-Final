@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Local runtime data
+database/*.db
+uploads/*
+!uploads/.gitkeep
+
+# Local model/cache outputs
+models/*
+!models/.gitkeep

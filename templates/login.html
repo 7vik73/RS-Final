@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ResumeIQ Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+    <main class="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-6">
+        <section class="w-full max-w-md rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+            <p class="text-sm font-semibold uppercase tracking-wide text-teal-700">Recruiter Access</p>
+            <h1 class="mt-2 text-3xl font-bold">ResumeIQ</h1>
+            <p class="mt-2 text-sm text-slate-600">Semantic resume screening for local recruiter workflows.</p>
+
+            {% include "_messages.html" ignore missing %}
+
+            <form class="mt-6 space-y-4" method="post">
+                <label class="block">
+                    <span class="text-sm font-medium">Username</span>
+                    <input name="username" required class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-teal-600 focus:outline-none">
+                </label>
+                <label class="block">
+                    <span class="text-sm font-medium">Password</span>
+                    <input name="password" type="password" required class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-teal-600 focus:outline-none">
+                </label>
+                <button class="w-full rounded-md bg-teal-700 px-4 py-2 font-semibold text-white hover:bg-teal-800">Log In</button>
+            </form>
+            <p class="mt-5 text-sm text-slate-600">New recruiter? <a class="font-semibold text-teal-700" href="{{ url_for('register') }}">Create an account</a></p>
+        </section>
+    </main>
+</body>
+</html>
