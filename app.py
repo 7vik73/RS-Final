@@ -23,7 +23,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from ai.analytics import chart_data, dashboard_metrics
+from ai.analytics import chart_data, dashboard_metrics, empty_charts, empty_metrics
 from ai.matcher import calculate_relevance_scores
 from ai.ranking import calculate_final_score
 from utils.database import execute, fetch_all, fetch_one, init_database
@@ -133,8 +133,8 @@ def dashboard():
 
     selected_job = None
     candidates = []
-    metrics = {"total_resumes": 0, "average_score": 0, "shortlisted": 0, "top_skill": "No skills yet"}
-    charts = {"matchDistribution": {}, "topSkills": {}, "semanticScores": {}}
+    metrics = empty_metrics()
+    charts = empty_charts()
 
     if selected_job_id:
         selected_job = fetch_one(

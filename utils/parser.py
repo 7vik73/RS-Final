@@ -71,8 +71,19 @@ def extract_phone(text):
 
 def extract_candidate_name(filename, raw_text):
     """Prefer the first useful resume line, then fall back to the filename."""
+    section_prefixes = (
+        "contact", "profile", "summary", "resume", "curriculum vitae",
+    )
     for line in raw_text.splitlines()[:5]:
         cleaned = line.strip()
+        lowered = cleaned.lower()
+        for prefix in section_prefixes:
+            if lowered.startswith(prefix + " "):
+                cleaned = cleaned[len(prefix):].strip()
+                lowered = cleaned.lower()
+                break
+        if cleaned.isupper() or any(char.isdigit() for char in cleaned):
+            continue
         if 2 <= len(cleaned.split()) <= 4 and "@" not in cleaned:
             return cleaned[:80]
     return Path(filename).stem.replace("_", " ").replace("-", " ").title()
