@@ -22,7 +22,8 @@ def get_connection():
 
 def init_database():
     """Create all project tables if they do not already exist."""
-    with get_connection() as connection:
+    connection = get_connection()
+    try:
         cursor = connection.cursor()
 
         cursor.execute(
@@ -95,23 +96,34 @@ def init_database():
         )
 
         connection.commit()
+    finally:
+        connection.close()
 
 
 def fetch_all(query, params=()):
     """Run a SELECT query and return all rows."""
-    with get_connection() as connection:
+    connection = get_connection()
+    try:
         return connection.execute(query, params).fetchall()
+    finally:
+        connection.close()
 
 
 def fetch_one(query, params=()):
     """Run a SELECT query and return one row."""
-    with get_connection() as connection:
+    connection = get_connection()
+    try:
         return connection.execute(query, params).fetchone()
+    finally:
+        connection.close()
 
 
 def execute(query, params=()):
     """Run an INSERT/UPDATE/DELETE query and return the inserted row id."""
-    with get_connection() as connection:
+    connection = get_connection()
+    try:
         cursor = connection.execute(query, params)
         connection.commit()
         return cursor.lastrowid
+    finally:
+        connection.close()

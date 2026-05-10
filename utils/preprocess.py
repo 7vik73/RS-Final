@@ -2,6 +2,7 @@
 
 import re
 import string
+import os
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 
@@ -17,9 +18,21 @@ FALLBACK_STOPWORDS = {
     "were", "will", "with", "this", "or", "you", "your", "can", "using",
 }
 
+_NLTK_DOWNLOAD_CHECKED = False
+
 
 def ensure_nltk_resources():
     """Download small NLTK resources only when they are missing."""
+    global _NLTK_DOWNLOAD_CHECKED
+    if _NLTK_DOWNLOAD_CHECKED:
+        return
+    if os.environ.get("HF_HUB_OFFLINE") == "1" or os.environ.get("TRANSFORMERS_OFFLINE") == "1":
+        _NLTK_DOWNLOAD_CHECKED = True
+        return
+    if os.environ.get("RESUMEIQ_DOWNLOAD_NLTK") != "1":
+        _NLTK_DOWNLOAD_CHECKED = True
+        return
+
     resources = {
         "tokenizers/punkt": "punkt",
         "tokenizers/punkt_tab": "punkt_tab",
@@ -37,6 +50,7 @@ def ensure_nltk_resources():
             except Exception:
                 # Offline fallback is handled inside preprocess_text.
                 pass
+    _NLTK_DOWNLOAD_CHECKED = True
 
 
 def preprocess_text(text):

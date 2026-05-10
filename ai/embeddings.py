@@ -15,8 +15,16 @@ MODEL_NAME = "all-MiniLM-L6-v2"
 
 @lru_cache(maxsize=1)
 def get_model():
-    """Load the lightweight local semantic model once per Python process."""
-    return SentenceTransformer(MODEL_NAME)
+    """Load the lightweight semantic model once per Python process.
+
+    ResumeIQ tries the local Hugging Face cache first. This keeps analysis
+    stable without internet after the model has been downloaded once, while
+    still allowing a first-time online download when the cache is missing.
+    """
+    try:
+        return SentenceTransformer(MODEL_NAME, local_files_only=True)
+    except Exception:
+        return SentenceTransformer(MODEL_NAME)
 
 
 def generate_embedding(text):
