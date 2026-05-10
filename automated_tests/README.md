@@ -12,7 +12,7 @@ venv/bin/python -m unittest discover automated_tests -p "test_*.py"
 These tests cover parsing, preprocessing, skill extraction, scoring, analytics
 math, and template rendering.
 
-## Full 50-Resume Pipeline Checks
+## Full 100-Resume Pipeline Checks
 
 Offline mode:
 
@@ -36,7 +36,7 @@ venv/bin/python automated_tests/compare_network_modes.py
 ```
 
 The full check creates a temporary SQLite database, registers a recruiter,
-creates a realistic backend job description, uploads all 50 synthetic PDF
+creates a realistic backend job description, uploads all 100 synthetic PDF
 resumes, runs parsing, preprocessing, skill extraction, semantic matching,
 ranking, analytics, chart data generation, and dashboard rendering.
 

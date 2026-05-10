@@ -180,6 +180,39 @@ def create_job():
     return redirect(url_for("dashboard", job_id=job_id))
 
 
+@app.route("/jobs/<int:job_id>/delete", methods=["POST"])
+@login_required
+def delete_job(job_id):
+    """Delete a recruiter job and its uploaded resume analysis records."""
+    job = fetch_one(
+        "SELECT * FROM jobs WHERE id = ? AND user_id = ?",
+        (job_id, current_user_id()),
+    )
+    if not job:
+        flash("Job not found.", "error")
+        return redirect(url_for("dashboard"))
+
+    resume_rows = fetch_all(
+        "SELECT stored_path FROM resumes WHERE job_id = ? AND user_id = ?",
+        (job_id, current_user_id()),
+    )
+
+    execute("DELETE FROM candidates WHERE job_id = ?", (job_id,))
+    execute("DELETE FROM resumes WHERE job_id = ? AND user_id = ?", (job_id, current_user_id()))
+    execute("DELETE FROM jobs WHERE id = ? AND user_id = ?", (job_id, current_user_id()))
+
+    for row in resume_rows:
+        stored_path = Path(row["stored_path"])
+        try:
+            if stored_path.is_file() and UPLOAD_FOLDER in stored_path.resolve().parents:
+                stored_path.unlink()
+        except OSError:
+            pass
+
+    flash("Job and related resume analysis records deleted.", "success")
+    return redirect(url_for("dashboard"))
+
+
 @app.route("/upload/<int:job_id>", methods=["POST"])
 @login_required
 def upload_resumes(job_id):

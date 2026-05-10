@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="overflow-x-hidden">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,10 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="overflow-x-hidden bg-slate-50 text-slate-900">
     <header class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
-            <div>
+        <div class="mx-auto flex w-full max-w-[1600px] items-center justify-between gap-4 px-4 py-4 sm:px-5">
+            <div class="min-w-0">
                 <h1 class="text-2xl font-bold">ResumeIQ</h1>
                 <p class="text-sm text-slate-600">Semantic AI Resume Screening & Candidate Ranking</p>
             </div>
@@ -18,11 +18,11 @@
         </div>
     </header>
 
-    <main class="mx-auto max-w-7xl px-5 py-6">
+    <main class="mx-auto w-full max-w-[1600px] overflow-x-hidden px-4 py-6 sm:px-5">
         {% include "_messages.html" ignore missing %}
 
-        <section class="grid gap-5 lg:grid-cols-[360px_1fr]">
-            <aside class="space-y-5">
+        <section class="grid min-w-0 gap-5 lg:grid-cols-[minmax(260px,340px)_minmax(0,1fr)]">
+            <aside class="min-w-0 space-y-5">
                 <form method="post" action="{{ url_for('create_job') }}" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                     <h2 class="text-lg font-semibold">Create Job Requirement</h2>
                     <div class="mt-4 space-y-3">
@@ -37,10 +37,15 @@
                     <h2 class="text-lg font-semibold">Jobs</h2>
                     <div class="mt-3 space-y-2">
                         {% for job in jobs %}
-                            <a class="block rounded-md border px-3 py-2 text-sm hover:bg-slate-50 {% if selected_job and selected_job.id == job.id %}border-teal-500 bg-teal-50{% else %}border-slate-200{% endif %}" href="{{ url_for('dashboard', job_id=job.id) }}">
-                                <span class="font-semibold">{{ job.title }}</span>
-                                <span class="block text-xs text-slate-500">{{ job.created_at }}</span>
-                            </a>
+                            <div class="flex items-start gap-2 rounded-md border px-3 py-2 text-sm hover:bg-slate-50 {% if selected_job and selected_job.id == job.id %}border-teal-500 bg-teal-50{% else %}border-slate-200{% endif %}">
+                                <a class="min-w-0 flex-1" href="{{ url_for('dashboard', job_id=job.id) }}">
+                                    <span class="block truncate font-semibold">{{ job.title }}</span>
+                                    <span class="block truncate text-xs text-slate-500">{{ job.created_at }}</span>
+                                </a>
+                                <form method="post" action="{{ url_for('delete_job', job_id=job.id) }}" onsubmit="return confirm('Delete this job and all related resume analysis records?');">
+                                    <button class="rounded-md border border-red-200 px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-50" type="submit">Delete</button>
+                                </form>
+                            </div>
                         {% else %}
                             <p class="text-sm text-slate-600">Create a job to start screening.</p>
                         {% endfor %}
@@ -57,14 +62,14 @@
                 {% endif %}
             </aside>
 
-            <section class="space-y-5">
+            <section class="min-w-0 space-y-5">
                 {% if selected_job %}
-                    <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                    <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                         <div class="flex flex-col justify-between gap-3 md:flex-row md:items-start">
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-sm font-semibold uppercase tracking-wide text-teal-700">Active Requirement</p>
                                 <h2 class="mt-1 text-2xl font-bold">{{ selected_job.title }}</h2>
-                                <p class="mt-2 max-w-3xl text-sm text-slate-600">{{ selected_job.description }}</p>
+                                <p class="mt-2 max-w-5xl break-words text-sm text-slate-600">{{ selected_job.description }}</p>
                             </div>
                         </div>
                     </div>
@@ -81,7 +86,7 @@
                             ("Avg Resume Completeness", metrics.average_completeness ~ "%", "Profile quality signal")
                         ] %}
                         {% for label, value, helper in cards %}
-                            <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                            <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ label }}</p>
                                 <p class="mt-2 truncate text-2xl font-bold text-slate-950">{{ value }}</p>
                                 <p class="mt-1 text-xs text-slate-500">{{ helper }}</p>
@@ -90,56 +95,56 @@
                     </section>
 
                     <section class="grid gap-4 md:grid-cols-3">
-                        <div class="rounded-lg border border-teal-200 bg-teal-50 p-4 shadow-sm">
+                        <div class="min-w-0 rounded-lg border border-teal-200 bg-teal-50 p-4 shadow-sm">
                             <p class="text-xs font-semibold uppercase tracking-wide text-teal-800">Top Candidate</p>
                             <p class="mt-2 truncate text-xl font-bold text-teal-950">{{ metrics.top_candidate_name }}</p>
                             <p class="mt-1 text-sm text-teal-800">{{ metrics.top_candidate_score }}% overall match</p>
                         </div>
-                        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                        <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Experience Relevance</p>
                             <p class="mt-2 text-2xl font-bold">{{ metrics.average_experience }}%</p>
                             <p class="mt-1 text-xs text-slate-500">Average semantic fit of experience sections</p>
                         </div>
-                        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                        <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                             <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Project Relevance</p>
                             <p class="mt-2 text-2xl font-bold">{{ metrics.average_project }}%</p>
                             <p class="mt-1 text-xs text-slate-500">Average semantic fit of project sections</p>
                         </div>
                     </section>
 
-                    <section class="grid gap-4 xl:grid-cols-6">
-                        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-3">
+                    <section class="grid min-w-0 gap-4 xl:grid-cols-6">
+                        <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-3">
                             <h3 class="font-semibold">Candidate Match Score Distribution</h3>
                             <p class="mt-1 text-xs text-slate-500">This chart helps recruiters understand the overall quality distribution of applicants.</p>
                             <div class="mt-3 h-64"><canvas id="matchChart"></canvas></div>
                         </div>
-                        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-3">
+                        <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-3">
                             <h3 class="font-semibold">Semantic Relevance Distribution</h3>
                             <p class="mt-1 text-xs text-slate-500">This chart shows how semantically relevant resumes are to the active job requirement.</p>
                             <div class="mt-3 h-64"><canvas id="semanticChart"></canvas></div>
                         </div>
-                        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
+                        <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
                             <h3 class="font-semibold">Top Detected Skills</h3>
                             <p class="mt-1 text-xs text-slate-500">Most common extracted skills across uploaded resumes.</p>
                             <div class="mt-3 h-72"><canvas id="skillsChart"></canvas></div>
                         </div>
-                        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
+                        <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
                             <h3 class="font-semibold">Domain Distribution</h3>
                             <p class="mt-1 text-xs text-slate-500">Detected candidate focus areas from extracted skills.</p>
                             <div class="mt-3 h-72"><canvas id="domainChart"></canvas></div>
                         </div>
-                        <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
+                        <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
                             <h3 class="font-semibold">Shortlisted vs Rejected</h3>
                             <p class="mt-1 text-xs text-slate-500">Current recruiter decision status across candidates.</p>
                             <div class="mt-3 h-72"><canvas id="statusChart"></canvas></div>
                         </div>
                     </section>
 
-                    <section class="grid gap-4 xl:grid-cols-[1fr_320px]">
-                        <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                    <section class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+                        <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                             <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                                 <h2 class="text-lg font-semibold">Ranked Candidates</h2>
-                            <form class="grid gap-2 sm:grid-cols-4" method="get">
+                            <form class="grid min-w-0 gap-2 sm:grid-cols-4" method="get">
                                 <input type="hidden" name="job_id" value="{{ selected_job.id }}">
                                 <input name="min_score" value="{{ filters.get('min_score', '') }}" placeholder="Min score" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
                                 <input name="skill" value="{{ filters.get('skill', '') }}" placeholder="Skill" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
@@ -153,7 +158,7 @@
                             </form>
                             </div>
 
-                            <div class="mt-4 overflow-x-auto">
+                            <div class="mt-4 max-w-full overflow-x-auto">
                                 <table class="min-w-full divide-y divide-slate-200 text-sm">
                                     <thead class="bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-600">
                                         <tr>
@@ -178,7 +183,7 @@
                                             <tr class="align-top hover:bg-slate-50">
                                                 <td class="px-3 py-3 font-semibold">{{ loop.index }}</td>
                                                 <td class="px-3 py-3">
-                                                    <p class="font-semibold">{{ candidate.candidate_name }}</p>
+                                                    <p class="font-semibold">{% if candidate.candidate_name.lower().startswith('contact ') %}{{ candidate.candidate_name[8:] }}{% else %}{{ candidate.candidate_name }}{% endif %}</p>
                                                     <p class="text-xs text-slate-500">{{ candidate.email or candidate.filename }}</p>
                                                     <p class="mt-1 max-w-xs text-xs text-slate-500">Matched: {{ candidate.overlap_skills or "No required skill overlap" }}</p>
                                                 </td>
@@ -216,7 +221,7 @@
                             </div>
                         </div>
 
-                        <aside class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                        <aside class="min-w-0 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                             <h2 class="text-lg font-semibold">AI Insight Panel</h2>
                             <p class="mt-1 text-sm text-slate-500">Generated only from uploaded resumes for this job.</p>
                             <div class="mt-4 space-y-3">

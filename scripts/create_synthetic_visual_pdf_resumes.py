@@ -37,6 +37,11 @@ FIRST_NAMES = [
     "Yash", "Kavya", "Nikhil", "Diya", "Samar", "Leela", "Varun", "Ananya", "Ishan", "Pooja",
     "Amit", "Sara", "Jay", "Tanya", "Rehan", "Mina", "Om", "Zoya", "Manav", "Ira",
     "Harsh", "Noor", "Akash", "Rhea", "Siddharth", "Avni", "Krish", "Myra", "Vivaan", "Jiya",
+    "Eshan", "Lara", "Parth", "Sia", "Rudra", "Kiara", "Neil", "Mira", "Dhruv", "Reva",
+    "Aryan", "Zara", "Tejas", "Aditi", "Rishi", "Nora", "Kunal", "Tisha", "Shaurya", "Ina",
+    "Madhav", "Raina", "Arnav", "Lavanya", "Uday", "Samira", "Naveen", "Elina", "Pranav", "Amaya",
+    "Rajat", "Tanvi", "Kartik", "Sneha", "Ansh", "Farah", "Mihir", "Ritika", "Vihaan", "Alia",
+    "Gaurav", "Naina", "Ayaan", "Megha", "Darsh", "Suhani", "Raghav", "Anvi", "Laksh", "Tia",
 ]
 
 LAST_NAMES = [
@@ -45,6 +50,11 @@ LAST_NAMES = [
     "Kulkarni", "Bhat", "Sinha", "Mishra", "Agarwal", "Ghosh", "Jain", "Thomas", "Chatterjee", "Roy",
     "Dutta", "Naidu", "Arora", "Bajaj", "Gill", "George", "Kohli", "Banerjee", "Pandey", "Yadav",
     "Singh", "Fernandes", "Desai", "Mathur", "Trivedi", "Bansal", "Mohan", "Kumar", "Sethi", "Varma",
+    "Bhandari", "Bhatt", "Grover", "Lal", "Shah", "Prasad", "Raman", "Juneja", "Tandon", "Luthra",
+    "Walia", "Vohra", "Suri", "Hegde", "Pai", "Rastogi", "Chawla", "Purohit", "Bora", "Sodhi",
+    "Mirza", "Bakshi", "Apte", "Mahajan", "Patil", "Rana", "Dhar", "Chauhan", "Talwar", "Mitra",
+    "Nagpal", "Sarin", "Kale", "Ojha", "Rawat", "Bedi", "Saluja", "Lobo", "Sawant", "Thakur",
+    "Dixit", "Soman", "Gandhi", "Dugal", "Parikh", "Saha", "Tiwari", "Bora", "Kashyap", "Madan",
 ]
 
 DOMAINS = [
@@ -73,6 +83,54 @@ DOMAINS = [
     ("Content Writer", ["copywriting", "seo", "editing", "research", "blog writing", "content strategy", "wordpress"], "created search-friendly content and editorial calendars"),
     ("Quality Assurance Tester", ["manual testing", "automation testing", "selenium", "api testing", "bug reporting", "jira", "test cases"], "tested web products and improved defect tracking"),
     ("Operations Manager", ["process improvement", "vendor management", "excel", "reporting", "team management", "inventory", "planning"], "improved operating processes and team reporting"),
+]
+
+DOMAIN_EXTRAS = {
+    "Backend Python Developer": ["mysql", "postman", "redis", "django"],
+    "Frontend React Developer": ["figma", "bootstrap", "vue", "accessibility"],
+    "Full Stack Engineer": ["nodejs", "express", "mysql", "docker"],
+    "Data Analyst": ["forecasting", "analytics", "reporting", "google analytics"],
+    "Data Scientist": ["transformers", "forecasting", "analytics", "deep learning"],
+    "Machine Learning Engineer": ["nlp", "transformers", "api", "linux"],
+    "NLP Engineer": ["machine learning", "deep learning", "pandas", "numpy"],
+    "DevOps Engineer": ["terraform", "networking", "incident response", "risk assessment"],
+    "Cloud Engineer": ["kubernetes", "ci/cd", "monitoring", "risk assessment"],
+    "Cybersecurity Analyst": ["monitoring", "networking", "documentation", "incident response"],
+    "Database Administrator": ["sqlite", "mongodb", "redis", "backup"],
+    "Mobile App Developer": ["react", "typescript", "prototyping", "accessibility"],
+    "UI/UX Designer": ["typography", "branding", "layout design", "creative assets"],
+    "Graphic Designer": ["wireframes", "prototyping", "design systems", "accessibility"],
+    "Digital Marketing Specialist": ["copywriting", "wordpress", "market research", "analytics"],
+    "HR Recruiter": ["stakeholder management", "documentation", "reporting", "planning"],
+    "Business Analyst": ["analytics", "agile", "scrum", "reporting"],
+    "Project Manager": ["process improvement", "documentation", "excel", "analytics"],
+    "Product Manager": ["requirements gathering", "jira", "process mapping", "documentation"],
+    "Finance Analyst": ["sql", "analytics", "market research", "excel"],
+    "Sales Executive": ["customer service", "email marketing", "social media", "excel"],
+    "Customer Support Specialist": ["bug reporting", "test cases", "process improvement", "documentation"],
+    "Content Writer": ["social media", "email marketing", "google analytics", "figma"],
+    "Quality Assurance Tester": ["python", "git", "postman", "manual testing"],
+    "Operations Manager": ["risk management", "stakeholder management", "budgeting", "vendor management"],
+}
+
+COMPANIES = [
+    "NovaEdge Solutions", "BrightPath Labs", "CloudNest Systems", "PixelForge Studio",
+    "DataBridge Analytics", "GreenStack Technologies", "NorthStar Digital",
+    "BluePeak Consulting", "UrbanGrid Services", "MetricWave Labs",
+]
+
+PROJECT_THEMES = [
+    "candidate screening workflow", "inventory forecasting dashboard", "customer ticket tracker",
+    "API performance monitor", "mobile onboarding flow", "marketing campaign report",
+    "security incident log", "finance variance dashboard", "content planning system",
+    "cloud migration checklist",
+]
+
+CERTIFICATIONS = [
+    "Python Application Foundations", "Agile Delivery Essentials", "Data Analytics Practitioner",
+    "Cloud Fundamentals", "Security Awareness Professional", "UX Research Basics",
+    "Digital Campaign Strategy", "SQL for Business Reporting", "Quality Testing Foundations",
+    "Recruitment Operations Certificate",
 ]
 
 PALETTES = [
@@ -118,22 +176,31 @@ def bullet_list(items, style):
 
 def candidate(index):
     domain = DOMAINS[index % len(DOMAINS)]
-    first = FIRST_NAMES[index]
-    last = LAST_NAMES[index]
+    first = FIRST_NAMES[index % len(FIRST_NAMES)]
+    last = LAST_NAMES[(index * 7) % len(LAST_NAMES)]
     name = f"{first} {last}"
     email = f"{first.lower()}.{last.lower()}{index + 1}@example.com"
-    phone = f"+91 98{index + 10:02d} {12000 + index:05d}"
+    phone = f"+91 9{800000000 + (index * 13791):09d}"
     city = ["Bengaluru", "Hyderabad", "Pune", "Mumbai", "Delhi", "Chennai", "Kochi", "Ahmedabad"][index % 8]
     years = 1 + (index % 8)
+    rotation = (index // len(DOMAINS)) % len(domain[1])
+    base_skills = domain[1][rotation:] + domain[1][:rotation]
+    extras = DOMAIN_EXTRAS.get(domain[0], [])
+    extra_skills = [extras[(index + offset) % len(extras)] for offset in range(min(2, len(extras)))]
+    skills = list(dict.fromkeys(base_skills + extra_skills))[:8]
     return {
         "name": name,
         "email": email,
         "phone": phone,
         "city": city,
         "role": domain[0],
-        "skills": domain[1],
+        "skills": skills,
         "focus": domain[2],
         "years": years,
+        "company": COMPANIES[index % len(COMPANIES)],
+        "previous_company": COMPANIES[(index + 3) % len(COMPANIES)],
+        "project": PROJECT_THEMES[index % len(PROJECT_THEMES)],
+        "certification": CERTIFICATIONS[index % len(CERTIFICATIONS)],
     }
 
 
@@ -147,8 +214,8 @@ def sidebar_content(data, s, accent):
         Paragraph("CORE SKILLS", s["small_heading"]),
         bullet_list(data["skills"], s["sidebar"]),
         Paragraph("CERTIFICATIONS", s["small_heading"]),
-        Paragraph(f"Certified {data['role']} Foundations", s["sidebar"]),
-        Paragraph("Workplace Communication Essentials", s["sidebar"]),
+        Paragraph(data["certification"], s["sidebar"]),
+        Paragraph(f"{data['role']} Applied Workshop", s["sidebar"]),
         Paragraph("RESUME TYPE", s["small_heading"]),
         Paragraph("Synthetic sample resume for ResumeIQ testing.", s["muted"]),
     ]
@@ -162,29 +229,29 @@ def main_content(data, s):
         Paragraph("PROFESSIONAL SUMMARY", s["heading"]),
         Paragraph(
             f"{data['role']} with {data['years']} years of experience who has {data['focus']}. "
-            f"Comfortable with {', '.join(skills[:5])}, documentation, stakeholder communication, and delivery-focused teamwork.",
+            f"Comfortable with {', '.join(skills[:5])}, structured problem solving, and delivery-focused teamwork.",
             s["body"],
         ),
         Paragraph("EXPERIENCE", s["heading"]),
-        Paragraph(f"{data['role']} | NovaEdge Solutions | 2022 - Present", s["body"]),
+        Paragraph(f"{data['role']} | {data['company']} | 2022 - Present", s["body"]),
         bullet_list(
             [
                 f"Used {skills[0]}, {skills[1]}, and {skills[2]} to deliver reliable project outcomes for internal teams.",
-                f"Improved reporting quality and reduced repeated manual work by {10 + data['years']}% through structured workflows.",
-                "Collaborated with product, engineering, operations, and business stakeholders to clarify requirements.",
+                f"Improved delivery quality and reduced repeated manual work by {10 + data['years']}% through structured workflows.",
+                f"Coordinated reviews with cross-functional teams around {data['project']} goals.",
             ],
             s["body"],
         ),
-        Paragraph(f"Associate {data['role']} | BrightPath Labs | 2020 - 2022", s["body"]),
+        Paragraph(f"Associate {data['role']} | {data['previous_company']} | 2020 - 2022", s["body"]),
         bullet_list(
             [
                 f"Supported delivery tasks involving {skills[3]}, {skills[4]}, and {skills[5]}.",
-                "Prepared weekly progress notes, issue logs, test notes, or dashboard updates for managers.",
+                f"Prepared practical notes, issue logs, or validation updates for the {data['project']} initiative.",
             ],
             s["body"],
         ),
         Paragraph("PROJECTS", s["heading"]),
-        Paragraph(f"{data['role']} Portfolio Project", s["body"]),
+        Paragraph(f"{data['project'].title()} Project", s["body"]),
         bullet_list(
             [
                 f"Created a practical project using {', '.join(skills[:4])} to solve a realistic business problem.",
@@ -347,7 +414,7 @@ def main():
     for existing in OUTPUT_DIR.glob("*.pdf"):
         existing.unlink()
 
-    created = [create_resume(index) for index in range(50)]
+    created = [create_resume(index) for index in range(100)]
 
     if ZIP_PATH.exists():
         ZIP_PATH.unlink()

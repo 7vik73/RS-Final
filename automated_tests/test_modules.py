@@ -157,6 +157,53 @@ class ResumeIQModuleTests(unittest.TestCase):
         self.assertIn("Candidate Match Score Distribution", html)
         self.assertIn("AI Insight Panel", html)
 
+    def test_recruiter_can_delete_job_and_related_rows(self):
+        with resume_app.app.test_client() as client:
+            client.post("/register", data={"username": "deleter", "password": "pass123"})
+            client.post("/login", data={"username": "deleter", "password": "pass123"})
+            response = client.post(
+                "/jobs",
+                data={
+                    "title": "Delete Test",
+                    "description": "Python Flask APIs",
+                    "required_skills": "python, flask",
+                },
+                follow_redirects=False,
+            )
+            job_id = int(response.headers["Location"].split("job_id=")[1])
+            user_id = database.fetch_one("SELECT id FROM users WHERE username = ?", ("deleter",))["id"]
+
+            resume_id = database.execute(
+                """
+                INSERT INTO resumes
+                    (user_id, job_id, filename, stored_path, raw_text, cleaned_text, email, phone, skills, sections)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    user_id,
+                    job_id,
+                    "delete.pdf",
+                    "uploads/delete.pdf",
+                    "Python Flask",
+                    "python flask",
+                    "delete@example.com",
+                    "+91 98000 00001",
+                    "python, flask",
+                    "{}",
+                ),
+            )
+            database.execute(
+                "INSERT INTO candidates (resume_id, job_id, candidate_name) VALUES (?, ?, ?)",
+                (resume_id, job_id, "Delete Candidate"),
+            )
+
+            delete_response = client.post(f"/jobs/{job_id}/delete", follow_redirects=True)
+
+        self.assertEqual(delete_response.status_code, 200)
+        self.assertEqual(database.fetch_one("SELECT COUNT(*) AS count FROM jobs WHERE id = ?", (job_id,))["count"], 0)
+        self.assertEqual(database.fetch_one("SELECT COUNT(*) AS count FROM resumes WHERE job_id = ?", (job_id,))["count"], 0)
+        self.assertEqual(database.fetch_one("SELECT COUNT(*) AS count FROM candidates WHERE job_id = ?", (job_id,))["count"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

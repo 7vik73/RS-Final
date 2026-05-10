@@ -20,6 +20,14 @@ DOMAIN_RULES = {
     "Operations and Support": {"customer service", "ticketing", "process improvement", "vendor management", "inventory"},
 }
 
+GENERIC_ANALYTICS_SKILLS = {
+    "communication",
+    "documentation",
+    "reporting",
+    "stakeholder communication",
+    "planning",
+}
+
 
 def empty_metrics():
     """Default analytics state before any resume is uploaded."""
@@ -59,6 +67,7 @@ def dashboard_metrics(job_id):
         return empty_metrics()
 
     skill_counter = _skill_counter(candidates)
+    recruiter_skill_counter = _recruiter_skill_counter(candidates)
     missing_counter = _missing_skill_counter(candidates)
     top_candidate = max(candidates, key=lambda row: row["final_score"] or 0)
 
@@ -70,12 +79,12 @@ def dashboard_metrics(job_id):
         "average_semantic": _average_decimal_percent(row["semantic_score"] for row in candidates),
         "average_skill_match": _average_decimal_percent(row["skill_score"] for row in candidates),
         "shortlisted": sum(1 for row in candidates if row["status"] == "Shortlisted"),
-        "top_skill": skill_counter.most_common(1)[0][0] if skill_counter else "No skills yet",
+        "top_skill": recruiter_skill_counter.most_common(1)[0][0] if recruiter_skill_counter else "No skills yet",
         "most_missing_skill": missing_counter.most_common(1)[0][0] if missing_counter else "No missing skills yet",
         "average_completeness": _average_percent((row["resume_strength"] or 0) * 10 for row in candidates),
         "average_experience": _average_decimal_percent(row["experience_score"] for row in candidates),
         "average_project": _average_decimal_percent(row["project_score"] for row in candidates),
-        "top_candidate_name": top_candidate["candidate_name"],
+        "top_candidate_name": _clean_candidate_name(top_candidate["candidate_name"]),
         "top_candidate_score": round(top_candidate["final_score"] or 0, 2),
         "insights": insights,
     }
@@ -87,7 +96,7 @@ def chart_data(job_id):
     if not candidates:
         return empty_charts()
 
-    skill_counter = _skill_counter(candidates)
+    skill_counter = _recruiter_skill_counter(candidates)
     domain_counter = _domain_counter(candidates)
     status_counter = Counter(row["status"] or "Pending" for row in candidates)
 
@@ -134,10 +143,25 @@ def _split_csv(value):
     return [item.strip().lower() for item in (value or "").split(",") if item.strip()]
 
 
+def _clean_candidate_name(name):
+    name = name or "Unknown Candidate"
+    lowered = name.lower()
+    if lowered.startswith("contact "):
+        return name[8:].strip()
+    return name
+
+
 def _skill_counter(candidates):
     counter = Counter()
     for row in candidates:
         counter.update(_split_csv(row["skills"]))
+    return counter
+
+
+def _recruiter_skill_counter(candidates):
+    counter = _skill_counter(candidates)
+    for skill in GENERIC_ANALYTICS_SKILLS:
+        counter.pop(skill, None)
     return counter
 
 
