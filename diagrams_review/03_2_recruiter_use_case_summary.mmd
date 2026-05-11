@@ -1,0 +1,22 @@
+flowchart LR
+    A((Recruiter/Admin))
+    B["Register / Login"]
+    C["Create Job Requirement"]
+    D["Upload Resumes<br/>PDF or DOCX"]
+    E["Review Ranked Candidates"]
+    F{"Recruiter Decision"}
+    G["Shortlist Candidate"]
+    H["Reject Candidate"]
+    I["Download PDF Report"]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    F --> H
+    G --> I
+
+    D -. "Resume parsing, NLP preprocessing,<br/>skill extraction, semantic scoring" .-> E
+    I -. "Only shortlisted candidates<br/>are included in report" .-> A
