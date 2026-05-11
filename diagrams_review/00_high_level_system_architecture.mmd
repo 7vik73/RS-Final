@@ -1,0 +1,14 @@
+flowchart LR
+    A["Recruiter Browser"]
+    B["Flask Routes<br/>app.py"]
+    C["Parser and NLP Utilities<br/>parser.py, preprocess.py, skills.py"]
+    D["Semantic AI Modules<br/>embeddings.py, matcher.py, ranking.py"]
+    E["SQLite Storage<br/>database/database.db"]
+    F["Analytics Dashboard<br/>dashboard.html + Chart.js"]
+
+    A -->|"Job details, resume uploads, recruiter actions"| B
+    B -->|"PDF/DOCX files and job requirement"| C
+    C -->|"Cleaned text, sections, detected skills"| D
+    D -->|"Semantic scores, skill score, final ranking"| E
+    E -->|"Candidates, metrics, chart data"| F
+    F -->|"Ranked candidates, charts, insights, status actions"| A
