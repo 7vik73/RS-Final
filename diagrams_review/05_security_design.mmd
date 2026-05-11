@@ -1,0 +1,25 @@
+flowchart TD
+    A[Recruiter submits credentials] --> B[Register/Login route]
+    B --> C{Register?}
+    C -- Yes --> D[generate_password_hash password]
+    D --> E[(users table stores password_hash)]
+    C -- No --> F[check_password_hash]
+    F --> G{Valid user?}
+    G -- No --> H[Flash invalid login message]
+    G -- Yes --> I[Create Flask session user_id and username]
+    I --> J[Protected recruiter routes]
+
+    J --> K{login_required passes?}
+    K -- No session --> L[Redirect to /login]
+    K -- Session exists --> M[Allow dashboard/job/upload/status/report route]
+
+    M --> N[Ownership checks]
+    N --> O{record belongs to current_user_id?}
+    O -- No --> P[Reject action or redirect]
+    O -- Yes --> Q[Allow operation]
+
+    Q --> R[File upload controls]
+    R --> S[allowed_file permits PDF/DOCX only]
+    S --> T[secure_filename cleans file name]
+    T --> U[MAX_CONTENT_LENGTH limits upload size]
+    U --> V[Save only in uploads folder]

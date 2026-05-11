@@ -1,0 +1,26 @@
+flowchart TD
+    A([Recruiter/Admin opens ResumeIQ]) --> B{Logged in?}
+    B -- No --> C[Register or Login]
+    C --> D[Flask creates session user_id and username]
+    B -- Yes --> E[Dashboard]
+    D --> E
+    E --> F[Create Job Requirement]
+    F --> G[(jobs table)]
+    G --> H[Select Job]
+    H --> I[Upload multiple PDF/DOCX resumes]
+    I --> J[Validate extension: .pdf or .docx]
+    J --> K[secure_filename and save to uploads folder]
+    K --> L[parse_resume in utils/parser.py]
+    L --> M[Extract raw text, email, phone, sections, skills]
+    M --> N[preprocess_text with NLTK]
+    N --> O[compare_skills with required skills]
+    O --> P[SentenceTransformer all-MiniLM-L6-v2 embeddings]
+    P --> Q[Cosine similarity for semantic, experience, project scores]
+    Q --> R[Weighted ranking formula]
+    R --> S[(resumes and candidates tables)]
+    S --> T[Dashboard metrics, charts, ranked candidates]
+    T --> U{Recruiter decision}
+    U --> V[Shortlist]
+    U --> W[Reject]
+    U --> X[Keep Pending]
+    V --> Y[Download shortlisted candidates PDF]

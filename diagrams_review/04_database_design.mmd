@@ -1,0 +1,54 @@
+erDiagram
+    USERS ||--o{ JOBS : owns
+    USERS ||--o{ RESUMES : uploads
+    JOBS ||--o{ RESUMES : receives
+    JOBS ||--o{ CANDIDATES : ranks
+    RESUMES ||--|| CANDIDATES : produces
+
+    USERS {
+        INTEGER id PK
+        TEXT username UK
+        TEXT password_hash
+        TIMESTAMP created_at
+    }
+
+    JOBS {
+        INTEGER id PK
+        INTEGER user_id FK
+        TEXT title
+        TEXT description
+        TEXT required_skills
+        TIMESTAMP created_at
+    }
+
+    RESUMES {
+        INTEGER id PK
+        INTEGER user_id FK
+        INTEGER job_id FK
+        TEXT filename
+        TEXT stored_path
+        TEXT raw_text
+        TEXT cleaned_text
+        TEXT email
+        TEXT phone
+        TEXT skills
+        TEXT sections
+        TIMESTAMP uploaded_at
+    }
+
+    CANDIDATES {
+        INTEGER id PK
+        INTEGER resume_id FK
+        INTEGER job_id FK
+        TEXT candidate_name
+        REAL semantic_score
+        REAL skill_score
+        REAL experience_score
+        REAL project_score
+        REAL resume_strength
+        REAL final_score
+        TEXT overlap_skills
+        TEXT missing_skills
+        TEXT status
+        TIMESTAMP analyzed_at
+    }
