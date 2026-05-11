@@ -9,6 +9,8 @@ transformer embeddings.
 """
 
 import json
+import re
+from io import BytesIO
 from pathlib import Path
 
 from flask import (
@@ -17,6 +19,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_file,
     session,
     url_for,
 )
@@ -267,6 +270,43 @@ def update_candidate_status(candidate_id):
     return redirect(url_for("dashboard", job_id=candidate["job_id"]))
 
 
+@app.route("/jobs/<int:job_id>/selected-report.pdf")
+@login_required
+def download_selected_candidates(job_id):
+    """Download a PDF report of shortlisted candidates for a job."""
+    job = fetch_one(
+        "SELECT * FROM jobs WHERE id = ? AND user_id = ?",
+        (job_id, current_user_id()),
+    )
+    if not job:
+        flash("Job not found.", "error")
+        return redirect(url_for("dashboard"))
+
+    candidates = fetch_all(
+        """
+        SELECT
+            candidates.*,
+            resumes.email,
+            resumes.phone,
+            resumes.skills
+        FROM candidates
+        JOIN resumes ON resumes.id = candidates.resume_id
+        WHERE candidates.job_id = ? AND candidates.status = 'Shortlisted'
+        ORDER BY candidates.final_score DESC
+        """,
+        (job_id,),
+    )
+
+    pdf_buffer = build_selected_candidates_pdf(job, candidates)
+    filename = f"resumeiq_selected_candidates_job_{job_id}.pdf"
+    return send_file(
+        pdf_buffer,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=filename,
+    )
+
+
 def unique_upload_path(filename):
     """Avoid overwriting files when multiple resumes share a filename."""
     UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
@@ -376,6 +416,86 @@ def get_filtered_candidates(job_id):
 
     query += " ORDER BY candidates.final_score DESC"
     return fetch_all(query, params)
+
+
+def clean_candidate_name(name):
+    """Remove section-label noise from older parsed visual resumes."""
+    section_labels = ("contact", "profile", "summary", "resume", "curriculum vitae")
+    name = name or "Unknown Candidate"
+    cleaned = name.strip()
+    for label in section_labels:
+        cleaned = re.sub(rf"^{re.escape(label)}\s+", "", cleaned, flags=re.IGNORECASE).strip()
+        cleaned = re.sub(rf"\s+{re.escape(label)}$", "", cleaned, flags=re.IGNORECASE).strip()
+    if not cleaned:
+        return "Unknown Candidate"
+    return cleaned
+
+
+def build_selected_candidates_pdf(job, candidates):
+    """Create a recruiter-friendly PDF for shortlisted candidates."""
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.units import inch
+    from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+    buffer = BytesIO()
+    document = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=0.55 * inch,
+        leftMargin=0.55 * inch,
+        topMargin=0.55 * inch,
+        bottomMargin=0.55 * inch,
+        title="ResumeIQ Selected Candidates",
+    )
+    styles = getSampleStyleSheet()
+    story = [
+        Paragraph("ResumeIQ Selected Candidates", styles["Title"]),
+        Paragraph(f"Job: {job['title']}", styles["Heading2"]),
+        Paragraph("Only candidates marked as Shortlisted are included.", styles["BodyText"]),
+        Spacer(1, 0.2 * inch),
+    ]
+
+    if not candidates:
+        story.append(Paragraph("No shortlisted candidates for this job yet.", styles["BodyText"]))
+    else:
+        table_data = [["Rank", "Candidate", "Match", "Semantic", "Skill Match", "Email"]]
+        for index, candidate in enumerate(candidates, start=1):
+            table_data.append(
+                [
+                    str(index),
+                    clean_candidate_name(candidate["candidate_name"]),
+                    f"{candidate['final_score']:.2f}%",
+                    f"{(candidate['semantic_score'] or 0) * 100:.2f}%",
+                    f"{(candidate['skill_score'] or 0) * 100:.2f}%",
+                    candidate["email"] or "-",
+                ]
+            )
+
+        table = Table(table_data, colWidths=[0.45 * inch, 1.65 * inch, 0.75 * inch, 0.85 * inch, 0.9 * inch, 2.15 * inch])
+        table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F766E")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 8),
+                    ("GRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#CBD5E1")),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F8FAFC")]),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 5),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
+        story.append(table)
+
+    document.build(story)
+    buffer.seek(0)
+    return buffer
 
 
 if __name__ == "__main__":

@@ -76,12 +76,9 @@ def extract_candidate_name(filename, raw_text):
     )
     for line in raw_text.splitlines()[:5]:
         cleaned = line.strip()
-        lowered = cleaned.lower()
         for prefix in section_prefixes:
-            if lowered.startswith(prefix + " "):
-                cleaned = cleaned[len(prefix):].strip()
-                lowered = cleaned.lower()
-                break
+            cleaned = re.sub(rf"^{re.escape(prefix)}\s+", "", cleaned, flags=re.IGNORECASE).strip()
+            cleaned = re.sub(rf"\s+{re.escape(prefix)}$", "", cleaned, flags=re.IGNORECASE).strip()
         if cleaned.isupper() or any(char.isdigit() for char in cleaned):
             continue
         if 2 <= len(cleaned.split()) <= 4 and "@" not in cleaned:

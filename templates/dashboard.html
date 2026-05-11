@@ -21,8 +21,8 @@
     <main class="mx-auto w-full max-w-[1600px] overflow-x-hidden px-4 py-6 sm:px-5">
         {% include "_messages.html" ignore missing %}
 
-        <section class="grid min-w-0 gap-5 lg:grid-cols-[minmax(260px,340px)_minmax(0,1fr)]">
-            <aside class="min-w-0 space-y-5">
+        <section class="min-w-0 space-y-5">
+            <aside class="grid min-w-0 gap-5 lg:grid-cols-3">
                 <form method="post" action="{{ url_for('create_job') }}" class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                     <h2 class="text-lg font-semibold">Create Job Requirement</h2>
                     <div class="mt-4 space-y-3">
@@ -140,26 +140,29 @@
                         </div>
                     </section>
 
-                    <section class="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+                    <section class="min-w-0 space-y-4">
                         <div class="min-w-0 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                             <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                                 <h2 class="text-lg font-semibold">Ranked Candidates</h2>
-                            <form class="grid min-w-0 gap-2 sm:grid-cols-4" method="get">
-                                <input type="hidden" name="job_id" value="{{ selected_job.id }}">
-                                <input name="min_score" value="{{ filters.get('min_score', '') }}" placeholder="Min score" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
-                                <input name="skill" value="{{ filters.get('skill', '') }}" placeholder="Skill" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
-                                <select name="status" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
-                                    <option value="">Any status</option>
-                                    {% for option in ["Pending", "Shortlisted", "Rejected"] %}
-                                        <option value="{{ option }}" {% if filters.get('status') == option %}selected{% endif %}>{{ option }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Filter</button>
-                            </form>
+                                <div class="flex flex-col gap-2 lg:flex-row lg:items-center">
+                                    <a class="rounded-md border border-teal-700 px-4 py-2 text-center text-sm font-semibold text-teal-800 hover:bg-teal-50" href="{{ url_for('download_selected_candidates', job_id=selected_job.id) }}">Download Shortlisted PDF</a>
+                                    <form class="grid min-w-0 gap-2 sm:grid-cols-4" method="get">
+                                        <input type="hidden" name="job_id" value="{{ selected_job.id }}">
+                                        <input name="min_score" value="{{ filters.get('min_score', '') }}" placeholder="Min score" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+                                        <input name="skill" value="{{ filters.get('skill', '') }}" placeholder="Skill" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+                                        <select name="status" class="rounded-md border border-slate-300 px-3 py-2 text-sm">
+                                            <option value="">Any status</option>
+                                            {% for option in ["Pending", "Shortlisted", "Rejected"] %}
+                                                <option value="{{ option }}" {% if filters.get('status') == option %}selected{% endif %}>{{ option }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button class="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Filter</button>
+                                    </form>
+                                </div>
                             </div>
 
                             <div class="mt-4 max-w-full overflow-x-auto">
-                                <table class="min-w-full divide-y divide-slate-200 text-sm">
+                                <table class="w-full min-w-[1180px] divide-y divide-slate-200 text-sm">
                                     <thead class="bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-600">
                                         <tr>
                                             <th class="px-3 py-3">Rank</th>
@@ -183,7 +186,14 @@
                                             <tr class="align-top hover:bg-slate-50">
                                                 <td class="px-3 py-3 font-semibold">{{ loop.index }}</td>
                                                 <td class="px-3 py-3">
-                                                    <p class="font-semibold">{% if candidate.candidate_name.lower().startswith('contact ') %}{{ candidate.candidate_name[8:] }}{% else %}{{ candidate.candidate_name }}{% endif %}</p>
+                                                    {% set displayed_name = candidate.candidate_name %}
+                                                    {% if displayed_name.lower().startswith('contact ') %}
+                                                        {% set displayed_name = displayed_name[8:] %}
+                                                    {% endif %}
+                                                    {% if displayed_name.lower().endswith(' contact') %}
+                                                        {% set displayed_name = displayed_name[:-8] %}
+                                                    {% endif %}
+                                                    <p class="font-semibold">{{ displayed_name }}</p>
                                                     <p class="text-xs text-slate-500">{{ candidate.email or candidate.filename }}</p>
                                                     <p class="mt-1 max-w-xs text-xs text-slate-500">Matched: {{ candidate.overlap_skills or "No required skill overlap" }}</p>
                                                 </td>
@@ -224,7 +234,7 @@
                         <aside class="min-w-0 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                             <h2 class="text-lg font-semibold">AI Insight Panel</h2>
                             <p class="mt-1 text-sm text-slate-500">Generated only from uploaded resumes for this job.</p>
-                            <div class="mt-4 space-y-3">
+                            <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                                 {% for insight in metrics.insights %}
                                     <div class="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">{{ insight }}</div>
                                 {% endfor %}

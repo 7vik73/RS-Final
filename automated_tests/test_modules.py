@@ -52,13 +52,13 @@ class ResumeIQModuleTests(unittest.TestCase):
         self.assertNotIn("and", cleaned.split())
 
     def test_skill_extraction_and_overlap(self):
-        resume_skills = extract_skills("Python Flask FastAPI Docker Git PostgreSQL")
-        required = split_required_skills("python, flask, docker, react")
+        resume_skills = extract_skills("Python Flask FastAPI Docker Git PostgreSQL React Next js Express js")
+        required = split_required_skills("python, flask, docker, react js, next js and express js")
         overlap, missing, score = compare_skills(resume_skills, required)
 
-        self.assertEqual(overlap, ["docker", "flask", "python"])
-        self.assertEqual(missing, ["react"])
-        self.assertAlmostEqual(score, 0.75)
+        self.assertEqual(overlap, ["docker", "express", "flask", "next.js", "python", "react"])
+        self.assertEqual(missing, [])
+        self.assertAlmostEqual(score, 1.0)
 
     def test_resume_strength_score_uses_real_sections(self):
         sections = {
@@ -203,6 +203,57 @@ class ResumeIQModuleTests(unittest.TestCase):
         self.assertEqual(database.fetch_one("SELECT COUNT(*) AS count FROM jobs WHERE id = ?", (job_id,))["count"], 0)
         self.assertEqual(database.fetch_one("SELECT COUNT(*) AS count FROM resumes WHERE job_id = ?", (job_id,))["count"], 0)
         self.assertEqual(database.fetch_one("SELECT COUNT(*) AS count FROM candidates WHERE job_id = ?", (job_id,))["count"], 0)
+
+    def test_shortlisted_candidates_pdf_downloads(self):
+        with resume_app.app.test_client() as client:
+            client.post("/register", data={"username": "reporter", "password": "pass123"})
+            client.post("/login", data={"username": "reporter", "password": "pass123"})
+            response = client.post(
+                "/jobs",
+                data={
+                    "title": "Report Test",
+                    "description": "Python Flask APIs",
+                    "required_skills": "python, flask",
+                },
+                follow_redirects=False,
+            )
+            job_id = int(response.headers["Location"].split("job_id=")[1])
+            user_id = database.fetch_one("SELECT id FROM users WHERE username = ?", ("reporter",))["id"]
+            resume_id = database.execute(
+                """
+                INSERT INTO resumes
+                    (user_id, job_id, filename, stored_path, raw_text, cleaned_text, email, phone, skills, sections)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    user_id,
+                    job_id,
+                    "report.pdf",
+                    "uploads/report.pdf",
+                    "Python Flask",
+                    "python flask",
+                    "report@example.com",
+                    "+91 98000 00002",
+                    "python, flask",
+                    "{}",
+                ),
+            )
+            database.execute(
+                """
+                INSERT INTO candidates
+                    (resume_id, job_id, candidate_name, semantic_score, skill_score,
+                     experience_score, project_score, resume_strength, final_score,
+                     overlap_skills, missing_skills, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (resume_id, job_id, "Report Candidate", 0.8, 1.0, 0.7, 0.6, 8.5, 82.0, "python, flask", "", "Shortlisted"),
+            )
+
+            pdf_response = client.get(f"/jobs/{job_id}/selected-report.pdf")
+
+        self.assertEqual(pdf_response.status_code, 200)
+        self.assertEqual(pdf_response.mimetype, "application/pdf")
+        self.assertTrue(pdf_response.data.startswith(b"%PDF"))
 
 
 if __name__ == "__main__":

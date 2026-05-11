@@ -1,5 +1,6 @@
 """Recruiter analytics built only from uploaded resumes and stored scores."""
 
+import re
 from collections import Counter
 
 from utils.database import fetch_all, fetch_one
@@ -144,11 +145,13 @@ def _split_csv(value):
 
 
 def _clean_candidate_name(name):
+    section_labels = ("contact", "profile", "summary", "resume", "curriculum vitae")
     name = name or "Unknown Candidate"
-    lowered = name.lower()
-    if lowered.startswith("contact "):
-        return name[8:].strip()
-    return name
+    cleaned = name.strip()
+    for label in section_labels:
+        cleaned = re.sub(rf"^{re.escape(label)}\s+", "", cleaned, flags=re.IGNORECASE).strip()
+        cleaned = re.sub(rf"\s+{re.escape(label)}$", "", cleaned, flags=re.IGNORECASE).strip()
+    return cleaned or "Unknown Candidate"
 
 
 def _skill_counter(candidates):

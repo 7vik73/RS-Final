@@ -13,8 +13,9 @@ SKILL_DICTIONARY = {
         "sql", "r", "go", "golang", "php", "ruby", "kotlin", "swift",
     ],
     "Frameworks": [
-        "flask", "django", "fastapi", "react", "angular", "vue", "node.js",
-        "nodejs", "express", "spring", "spring boot", "tailwind", "bootstrap",
+        "flask", "django", "fastapi", "react", "react js", "angular", "vue",
+        "node.js", "node js", "nodejs", "express", "express js", "next.js",
+        "next js", "nextjs", "spring", "spring boot", "tailwind", "bootstrap",
     ],
     "Databases": [
         "sqlite", "mysql", "postgresql", "mongodb", "redis", "oracle",
@@ -70,9 +71,24 @@ SKILL_DICTIONARY = {
     ],
 }
 
+SKILL_ALIASES = {
+    "react js": "react",
+    "react.js": "react",
+    "next js": "next.js",
+    "nextjs": "next.js",
+    "express js": "express",
+    "express.js": "express",
+    "node js": "nodejs",
+    "node.js": "nodejs",
+    "rest apis": "rest api",
+    "api development": "api",
+    "postgres": "postgresql",
+}
+
 
 def _normalize_skill(skill):
-    return skill.strip().lower()
+    normalized = re.sub(r"\s+", " ", skill.strip().lower())
+    return SKILL_ALIASES.get(normalized, normalized)
 
 
 def extract_skills(text):
@@ -108,7 +124,7 @@ def split_required_skills(text):
     if not text:
         return []
     return [
-        skill.strip().lower()
-        for skill in re.split(r"[,;\n]+", text)
+        _normalize_skill(skill)
+        for skill in re.split(r"[,;\n]+|\s+\band\b\s+", text)
         if skill.strip()
     ]
